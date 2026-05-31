@@ -1,0 +1,659 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@300;400;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#080310;min-height:100vh;overflow:hidden;}
+
+  .scene{width:100%;height:100vh;position:relative;overflow:hidden;}
+
+  .bg-canvas{position:absolute;inset:0;width:100%;height:100%;}
+
+  .stage{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;padding-bottom:0;}
+
+  .radio{
+    width:420px;
+    position:relative;
+    filter:drop-shadow(0 0 60px rgba(180,30,0,0.55)) drop-shadow(0 0 120px rgba(120,0,0,0.3));
+  }
+
+  .antenna{
+    position:absolute;top:-70px;right:54px;
+    width:4px;height:130px;
+    background:linear-gradient(180deg,#e25700,#e25700);
+    border-radius:3px 3px 0 0;
+    transform:rotate(9deg);transform-origin:bottom center;z-index:20;
+  }
+  .antenna::before{content:'';position:absolute;top:-7px;left:-2px;width:8px;height:8px;background:#9a5818;border-radius:50% 50% 0 0;}
+
+  .copper-ring{
+    position:absolute;inset:-7px;
+    border-radius:215px 215px 12px 12px;
+    border:7px solid #e25700;z-index:12;pointer-events:none;
+    box-shadow:inset 0 0 0 2px #a14308,0 0 30px rgba(180,80,0,0.2);
+  }
+
+  .wood-body{
+    width:420px;
+    background:#2e1506;
+    border-radius:210px 210px 6px 6px;
+    position:relative;overflow:hidden;
+  }
+
+  .wood-lines{
+    position:absolute;inset:0;
+    background-image:repeating-linear-gradient(93deg,transparent 0px,transparent 9px,rgba(180,60,10,0.045) 9px,rgba(180,60,10,0.045) 10px);
+    border-radius:inherit;pointer-events:none;
+  }
+
+  .ribs-left,.ribs-right{
+    position:absolute;top:16px;bottom:0;width:18px;
+    display:flex;flex-direction:column;gap:7px;padding:16px 0;
+  }
+  .ribs-left{left:7px;}.ribs-right{right:7px;}
+  .rib{flex:1;background:#1e0a04;border-radius:3px;}
+
+  .arch-frame{
+    margin:20px 28px 0;
+    background:#0a0408;
+    border-radius:160px 160px 0 0;
+    border:4px solid #3a1808;
+    padding:16px 16px 0;
+    position:relative;overflow:hidden;
+  }
+
+  .grille{
+    width:100%;
+    aspect-ratio:1/0.68;
+    border-radius:130px 130px 0 0;
+    background:#060208;
+    position:relative;overflow:hidden;
+    border:2px solid #280e06;
+  }
+
+  .grille-bars{
+    position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:repeating-linear-gradient(90deg,rgba(30,8,4,0.65) 0px,rgba(30,8,4,0.65) 6px,transparent 6px,transparent 22px);
+    border-radius:inherit;
+  }
+
+  .grille-vignette{
+    position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;
+    background:radial-gradient(ellipse at 50% 55%,transparent 25%,rgba(4,1,8,0.8) 100%);
+  }
+
+  .wave-cv{position:absolute;inset:0;width:100%;height:100%;z-index:2;}
+
+  .eyes{position:absolute;inset:0;z-index:5;pointer-events:none;}
+  .eye{
+    position:absolute;
+    width:14px;height:14px;border-radius:50%;
+    background:#cc0000;
+    animation:blink 7s ease-in-out infinite;
+  }
+  .eye.l{top:32%;left:36%;animation-delay:0.4s;}
+  .eye.r{top:32%;left:58%;animation-delay:0.4s;}
+  @keyframes blink{
+    0%,42%,58%,100%{opacity:0;transform:scale(0.2);}
+    49%,51%{opacity:0.85;transform:scale(1);box-shadow:0 0 12px rgba(200,0,0,1);}
+  }
+
+  .upload-z{
+    position:absolute;inset:0;z-index:8;
+    border-radius:130px 130px 0 0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+  .upload-z:hover{background:rgba(180,0,0,0.06);}
+  .upload-hint{
+    font-family:'Special Elite',cursive;font-size:13px;
+    color:rgba(160,50,10,0.75);text-align:center;line-height:1.7;
+    pointer-events:none;
+  }
+  #fi{display:none;}
+
+  .dial-zone{
+    display:flex;justify-content:center;
+    margin:-52px 0 0;position:relative;z-index:14;
+  }
+
+  .dial-outer{
+    width:160px;height:160px;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%,#8a4010,#3a1404 60%,#160802);
+    border:6px solid #7a3808;
+    position:relative;
+    box-shadow:0 6px 24px rgba(0,0,0,0.9),0 0 40px rgba(200,40,0,0.18),inset 0 2px 6px rgba(255,160,40,0.1);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+
+  .dial-ring{
+    position:absolute;inset:0;border-radius:50%;
+    border:1px solid rgba(180,80,20,0.3);
+  }
+
+  .dial-scale{
+    position:absolute;inset:0;border-radius:50%;
+  }
+
+  .dial-mid{
+    width:90px;height:90px;border-radius:50%;
+    background:radial-gradient(circle at 36% 32%,#7a3008,#220c04);
+    border:4px solid #8a4010;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+    box-shadow:inset 0 2px 8px rgba(0,0,0,0.8),0 0 20px rgba(180,30,0,0.25);
+  }
+
+  .needle{
+    position:absolute;top:10px;left:50%;
+    transform:translateX(-50%);
+    width:4px;height:32px;
+    background:#dd0000;
+    border-radius:3px;
+    box-shadow:0 0 10px rgba(220,0,0,1),0 0 20px rgba(180,0,0,0.6);
+  }
+
+  .dial-label{
+    font-family:'Special Elite',cursive;font-size:9px;
+    color:#5a2010;text-align:center;line-height:1.4;z-index:1;
+    margin-top:14px;
+  }
+
+  .freq-text{
+    position:absolute;font-family:'Special Elite',cursive;font-size:8px;fill:#4a1c08;
+  }
+
+  .bottom-panel{
+    background:#1e0a04;
+    border-top:3px solid #3a1808;
+    padding:14px 20px 28px;
+    position:relative;
+  }
+
+  .band-bar{
+    background:#0d0508;border:1px solid #3a1808;border-radius:4px;
+    padding:5px 10px;text-align:center;margin-bottom:14px;
+    font-family:'Special Elite',cursive;font-size:10px;
+    color:#8a2010;letter-spacing:4px;
+  }
+
+  .controls-row{
+    display:flex;justify-content:center;align-items:center;gap:28px;
+  }
+
+  .knob-g{display:flex;flex-direction:column;align-items:center;gap:6px;}
+
+  .btn-cluster{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0;}
+
+  .knob{
+    width:56px;height:56px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#4e2012,#180804);
+    border:4px solid #6a2c10;
+    position:relative;cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,0.9),0 0 10px rgba(150,20,0,0.15);
+  }
+  .knob-ridge{position:absolute;inset:5px;border-radius:50%;border:1px solid rgba(160,60,20,0.25);}
+  .knob-dot{
+    position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+    width:5px;height:5px;background:#cc0000;border-radius:50%;
+    box-shadow:0 0 6px rgba(200,0,0,0.9);
+  }
+  .knob-lbl{font-family:'Oswald',sans-serif;font-size:9px;color:#5a2010;letter-spacing:2px;text-transform:uppercase;}
+
+  .btn-row{display:flex;gap:10px;justify-content:center;}
+
+  .ctrl-btn{
+    width:44px;height:36px;
+    background:radial-gradient(circle at 40% 30%,#3a1408,#120604);
+    border:2px solid #5a2410;
+    border-radius:6px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;color:#c03010;
+    font-family:'Special Elite',cursive;
+    transition:all 0.12s;
+    box-shadow:0 3px 8px rgba(0,0,0,0.8);
+  }
+  .ctrl-btn:hover{background:radial-gradient(circle at 40% 30%,#4e1c0a,#1a0806);color:#dd4020;}
+  .ctrl-btn:active{transform:scale(0.93);box-shadow:0 1px 4px rgba(0,0,0,0.9);}
+  .ctrl-btn.play{width:54px;height:44px;font-size:18px;border-color:#8a2010;color:#dd2010;box-shadow:0 3px 8px rgba(0,0,0,0.8),0 0 16px rgba(180,20,0,0.3);}
+  .ctrl-btn.download{width:30px;height:24px;border-radius:6px;font-size:12px;border-color:#7a3810;color:#ff4d4d;}
+  .bottom-panel .ctrl-btn.download{position:absolute;left:18px;bottom:6px;right:auto;z-index:10;}
+
+  .track-nm{
+    font-family:'Special Elite',cursive;font-size:9px;color:#5a2010;
+    text-align:center;max-width:180px;
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    letter-spacing:1px;
+  }
+
+  .status-lamp{
+    width:8px;height:8px;border-radius:50%;
+    background:#1a0400;border:1px solid #3a1000;
+    transition:all 0.3s;
+  }
+  .status-lamp.on{background:#ff3300;box-shadow:0 0 10px rgba(255,50,0,1),0 0 20px rgba(200,0,0,0.5);}
+
+  .base{
+    width:420px;height:24px;
+    background:#180802;
+    border-radius:4px 4px 8px 8px;
+    border-top:2px solid #3a1808;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 24px;
+  }
+  .foot{width:16px;height:10px;background:#0d0402;border-radius:0 0 5px 5px;border:1px solid #2a0e04;margin-top:2px;}
+
+  .drip{
+    position:absolute;top:16px;background:#660000;border-radius:0 0 3px 3px;
+    animation:drip 5s ease-in infinite;z-index:16;
+  }
+  @keyframes drip{
+    0%{height:0;opacity:1;}
+    70%{height:50px;opacity:0.9;}
+    100%{height:70px;opacity:0;}
+  }
+</style>
+
+<div class="scene">
+  <canvas class="bg-canvas" id="bgc"></canvas>
+
+  <div class="stage">
+    <div class="radio">
+      <div class="antenna"></div>
+
+      <div class="copper-ring"></div>
+
+      <div class="wood-body">
+        <div class="wood-lines"></div>
+        <div class="drip" style="left:80px;width:3px;animation-delay:0s;animation-duration:6s;"></div>
+        <div class="drip" style="left:300px;top:4px;width:3px;animation-delay:1.2s;animation-duration:7s;"></div>
+        <div class="drip" style="left:370px;width:2px;animation-delay:3.8s;animation-duration:5.5s;"></div>
+        <div class="ribs-left"><div class="rib"></div><div class="rib"></div><div class="rib"></div><div class="rib"></div><div class="rib"></div><div class="rib"></div></div>
+        <div class="ribs-right"><div class="rib"></div><div class="rib"></div><div class="rib"></div><div class="rib"></div><div class="rib"></div><div class="rib"></div></div>
+
+        <div class="arch-frame">
+          <div class="grille" id="grille">
+            <canvas class="wave-cv" id="wc"></canvas>
+            <div class="grille-bars"></div>
+            <div class="grille-vignette"></div>
+            <div class="eyes">
+              <div class="eye l"></div>
+              <div class="eye r"></div>
+            </div>
+            <div class="upload-z" id="uz">
+              <div class="upload-hint" id="uh">Drop MP3 here<br>or click to load</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dial-zone">
+          <div class="dial-outer" id="dial">
+            <svg style="position:absolute;inset:0;width:100%;height:100%;border-radius:50%;" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="72" fill="none" stroke="#4a1c08" stroke-width="0.6" stroke-dasharray="3 8"/>
+              <text x="80" y="18" text-anchor="middle" font-size="8" fill="#4a1c08" font-family="Oswald">1600</text>
+              <text x="80" y="148" text-anchor="middle" font-size="8" fill="#4a1c08" font-family="Oswald">550</text>
+              <text x="14" y="84" text-anchor="middle" font-size="8" fill="#4a1c08" font-family="Oswald">AM</text>
+              <text x="146" y="84" text-anchor="middle" font-size="8" fill="#4a1c08" font-family="Oswald">FM</text>
+              <line x1="80" y1="12" x2="80" y2="20" stroke="#3a1408" stroke-width="1"/>
+              <line x1="80" y1="140" x2="80" y2="148" stroke="#3a1408" stroke-width="1"/>
+              <line x1="12" y1="80" x2="20" y2="80" stroke="#3a1408" stroke-width="1"/>
+              <line x1="140" y1="80" x2="148" y2="80" stroke="#3a1408" stroke-width="1"/>
+            </svg>
+            <div class="dial-ring"></div>
+            <div class="dial-mid">
+              <div class="needle"></div>
+              <div class="dial-label">kHz<br>MHz</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-panel">
+          <div class="band-bar">— No Signal —</div>
+          <div class="controls-row">
+            <div class="knob-g">
+              <div class="knob" id="kvol"><div class="knob-ridge"></div><div class="knob-dot"></div></div>
+              <div class="knob-lbl">Volume</div>
+            </div>
+
+            <div class="btn-cluster">
+              <div class="btn-row">
+                <div class="ctrl-btn" id="bprev" title="Previous">⏮</div>
+                <div class="ctrl-btn play" id="bplay" title="Play / Pause" aria-label="Play or Pause">▶</div>
+                <div class="ctrl-btn" id="bnext" title="Next">⏭</div>
+              </div>
+              <div class="track-nm" id="tnm">— No Signal —</div>
+              <div class="status-lamp" id="slamp"></div>
+            </div>
+
+            <div class="knob-g">
+              <div class="knob" id="ktune"><div class="knob-ridge"></div><div class="knob-dot"></div></div>
+              <div class="knob-lbl">Tuning</div>
+            </div>
+          </div>
+          <div class="ctrl-btn download" id="bdownload" title="Download">⟡</div>
+        </div>
+      </div>
+      <div class="base"><div class="foot"></div><div class="foot"></div></div>
+    </div>
+  </div>
+</div>
+<input type="file" id="fi" accept="audio/*">
+
+<script>
+const bgc=document.getElementById('bgc'),bgx=bgc.getContext('2d');
+const wc=document.getElementById('wc'),wx=wc.getContext('2d');
+const grille=document.getElementById('grille');
+const uz=document.getElementById('uz'),uh=document.getElementById('uh');
+const fi=document.getElementById('fi');
+const bplay=document.getElementById('bplay');
+const bdownload=document.getElementById('bdownload');
+const tnm=document.getElementById('tnm');
+const slamp=document.getElementById('slamp');
+
+function rsz(){
+  bgc.width=bgc.offsetWidth; bgc.height=bgc.offsetHeight;
+  wc.width=grille.offsetWidth; wc.height=grille.offsetHeight;
+}
+rsz(); window.addEventListener('resize',rsz);
+
+const stars=Array.from({length:100},()=>({x:Math.random(),y:Math.random()*0.65,r:Math.random()*1.4+0.3,f:Math.random()*Math.PI*2,s:Math.random()*0.018+0.004}));
+const fog=Array.from({length:20},()=>({x:Math.random(),y:0.52+Math.random()*0.48,rx:80+Math.random()*120,ry:25+Math.random()*30,sp:(Math.random()-0.5)*0.00025,a:Math.random()*0.055+0.018,ph:Math.random()*Math.PI*2}));
+const ravens=Array.from({length:4},()=>({x:Math.random(),y:0.06+Math.random()*0.18,wp:Math.random()*Math.PI*2,sp:0.0005+Math.random()*0.0004,dir:Math.random()<0.5?1:-1,sz:7+Math.random()*8}));
+let bt=0,ltimer=0,lalpha=0,mflick=0;
+let volumeVal=50,tuneVal=50;
+
+function drawBg(){
+  const W=bgc.width,H=bgc.height;
+  if(!W||!H){requestAnimationFrame(drawBg);return;}
+  bgx.fillStyle='#04020a'; bgx.fillRect(0,0,W,H);
+  const sky=H*0.62;
+  for(let y=0;y<sky;y+=3){
+    const p=y/sky;
+    const r=Math.floor(4+p*22),g=Math.floor(2+p*5),b=Math.floor(10+p*16);
+    bgx.fillStyle=`rgb(${r},${g},${b})`; bgx.fillRect(0,y,W,3);
+  }
+  mflick+=0.025;
+  const ma=0.82+Math.sin(mflick)*0.09;
+  const mx=W*0.8,my=H*0.1,mr=36;
+  bgx.fillStyle=`rgba(190,165,115,${ma*0.88})`;
+  bgx.beginPath(); bgx.arc(mx,my,mr,0,Math.PI*2); bgx.fill();
+  bgx.fillStyle=`rgba(170,140,90,${ma*0.35})`;
+  bgx.beginPath(); bgx.arc(mx,my,mr*1.7,0,Math.PI*2); bgx.fill();
+  bgx.fillStyle='#04020a';
+  bgx.beginPath(); bgx.arc(mx+mr*0.38,my-mr*0.08,mr*0.87,0,Math.PI*2); bgx.fill();
+  stars.forEach(s=>{
+    s.f+=s.s;
+    const a=Math.max(0,0.38+Math.sin(s.f)*0.38);
+    bgx.fillStyle=`rgba(195,175,155,${a})`;
+    bgx.beginPath(); bgx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2); bgx.fill();
+  });
+  if(lalpha>0){bgx.fillStyle=`rgba(210,190,255,${lalpha*0.13})`;bgx.fillRect(0,0,W,H);lalpha-=0.055;}
+  ltimer++;
+  if(ltimer>200+Math.random()*400){lalpha=1;ltimer=0;drawBolt(W*(.28+Math.random()*.44),0,W,H);}
+  drawGround(W,H); drawFog(W,H); drawRavens(W,H);
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+function drawBolt(sx,sy,W,H){
+  bgx.strokeStyle='rgba(210,190,255,0.85)'; bgx.lineWidth=1.5; bgx.beginPath();
+  let x=sx,y=sy; bgx.moveTo(x,y);
+  while(y<H*0.52){x+=(Math.random()-.5)*44;y+=16+Math.random()*22;bgx.lineTo(x,y);}
+  bgx.stroke();
+}
+
+function drawGround(W,H){
+  const gy=H*0.6;
+  bgx.fillStyle='#080310';
+  bgx.beginPath(); bgx.moveTo(0,gy);
+  for(let x=0;x<=W;x+=0.1) bgx.lineTo(x,gy+Math.sin(x*.038+bt*.18)*7);
+  bgx.lineTo(W,H); bgx.lineTo(0,H); bgx.closePath(); bgx.fill();
+}
+
+function drawFog(W,H){
+  fog.forEach(p=>{
+    p.x+=p.sp; if(p.x>1.3)p.x=-0.3; if(p.x<-0.3)p.x=1.3;
+    p.ph+=0.003;
+    const a=p.a*(0.65+Math.sin(p.ph)*0.35);
+    bgx.fillStyle=`rgba(35,15,28,${a})`;
+    bgx.beginPath(); bgx.ellipse(p.x*W,p.y*H,p.rx*1.8,p.ry,0,0,Math.PI*2); bgx.fill();
+  });
+}
+
+function drawRavens(W,H){
+  ravens.forEach(r=>{
+    r.x+=r.sp*r.dir; if(r.x>1.1)r.x=-0.05; if(r.x<-0.1)r.x=1.05;
+    r.wp+=0.09;
+    const rx=r.x*W,ry=r.y*H,flap=Math.sin(r.wp)*r.sz*.55;
+    bgx.fillStyle='#0a0410';
+    bgx.beginPath(); bgx.ellipse(rx,ry,r.sz*.5,r.sz*.22,0,0,Math.PI*2); bgx.fill();
+    bgx.beginPath();
+    bgx.moveTo(rx-.1*r.sz,ry);
+    bgx.bezierCurveTo(rx-.6*r.sz,ry-flap,rx-r.sz,ry-flap*.5,rx-1.1*r.sz,ry+r.sz*.1);
+    bgx.bezierCurveTo(rx-.8*r.sz,ry+r.sz*.1,rx-.3*r.sz,ry+flap*.2,rx-.1*r.sz,ry);
+    bgx.fill();
+    bgx.beginPath();
+    bgx.moveTo(rx+.1*r.sz,ry);
+    bgx.bezierCurveTo(rx+.6*r.sz,ry-flap,rx+r.sz,ry-flap*.5,rx+1.1*r.sz,ry+r.sz*.1);
+    bgx.bezierCurveTo(rx+.8*r.sz,ry+r.sz*.1,rx+.3*r.sz,ry+flap*.2,rx+.1*r.sz,ry);
+    bgx.fill();
+  });
+}
+
+const rwaves=[
+  {amp:.24,freq:.024,sp:.013,ph:0,c:'rgba(180,0,0,'},
+  {amp:.14,freq:.04,sp:.027,ph:2.0,c:'rgba(130,0,0,'},
+  {amp:.09,freq:.062,sp:.044,ph:4.3,c:'rgba(220,50,0,'},
+];
+let wt=0,analyser,freqData,isPlaying=false;
+
+function drawWave(){
+  const W=wc.width,H=wc.height;
+  if(!W||!H){requestAnimationFrame(drawWave);return;}
+  if(analyser && isPlaying){
+    analyser.getByteFrequencyData(freqData);
+    wt += 0.04;
+  }
+  wx.clearRect(0,0,W,H);
+  const mid=H/2;
+  const avgLevel = analyser && isPlaying ? freqData.reduce((sum,value)=>sum+value,0) / freqData.length / 255 : 0;
+  rwaves.forEach((wv,i)=>{
+    const band = analyser && isPlaying ? freqData[Math.min(freqData.length-1, i*6+2)] / 255 : 0.18;
+    const b = 0.3 + avgLevel * 0.65 + band * 0.4;
+    wx.beginPath(); wx.strokeStyle=wv.c+(0.7*b)+')';
+    wx.lineWidth=i===0?2:1.1; wx.lineJoin='round';
+    for(let x=0;x<=W;x+=2){
+      const y = mid + Math.sin(x*wv.freq + wt*wv.sp*50 + wv.ph) * H * wv.amp * b;
+      x===0 ? wx.moveTo(x,y) : wx.lineTo(x,y);
+    }
+    wx.stroke();
+  });
+  const glow = analyser && isPlaying ? (Math.max(...freqData.slice(0,12))/255)*0.18 + 0.03 : 0.025;
+  wx.fillStyle = `rgba(120,0,0,${glow})`;
+  wx.fillRect(0,0,W,H);
+  requestAnimationFrame(drawWave);
+}
+drawWave();
+
+let audioCtx,srcNode,audioBuf,gainN,lpf,hpf,wsN,crackG,hissG,masterG;
+let sTime=0,pauseOff=0;
+
+uz.addEventListener('click',()=>fi.click());
+uz.addEventListener('dragover',e=>e.preventDefault());
+uz.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)loadAudio(f);});
+fi.addEventListener('change',e=>{if(e.target.files[0])loadAudio(e.target.files[0]);});
+bplay.addEventListener('click',togglePlay);
+bdownload.addEventListener('click',exportProcessedAudio);
+
+async function loadAudio(f){
+  if(isPlaying)stop();
+  if(!audioCtx)initCtx();
+  tnm.textContent='...tuning...';
+  const ab=await f.arrayBuffer();
+  audioBuf=await audioCtx.decodeAudioData(ab);
+  tnm.textContent=f.name.replace(/\.[^/.]+$/,'');
+  uh.textContent='';
+  slamp.classList.add('on');
+  pauseOff=0;
+}
+
+function initCtx(){
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
+  freqData=new Uint8Array(analyser.frequencyBinCount);
+  masterG=audioCtx.createGain(); masterG.gain.value=volumeVal/100*1.5;
+  gainN=audioCtx.createGain();
+  lpf=audioCtx.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=1200+tuneVal*20; lpf.Q.value=0.9;
+  hpf=audioCtx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=280;
+  wsN=audioCtx.createWaveShaper(); wsN.curve=dist(65);
+  crackG=audioCtx.createGain(); crackG.gain.value=0.13;
+  hissG=audioCtx.createGain(); hissG.gain.value=0.05;
+  mkCrack().connect(crackG); mkHiss().connect(hissG);
+  crackG.connect(masterG); hissG.connect(masterG);
+  masterG.connect(analyser); analyser.connect(audioCtx.destination);
+}
+
+function dist(a){const n=256,c=new Float32Array(n);for(let i=0;i<n;i++){const x=(i*2)/n-1;c[i]=((Math.PI+a)*x)/(Math.PI+a*Math.abs(x));}return c;}
+
+function mkCrack(){
+  const len=audioCtx.sampleRate*4,buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<len;i++){if(Math.random()<0.002){const dur=Math.floor(Math.random()*70+20);for(let j=0;j<dur&&i+j<len;j++)d[i+j]=(Math.random()*2-1)*Math.exp(-j/(dur*.3))*1.5;i+=dur;}}
+  const s=audioCtx.createBufferSource();s.buffer=buf;s.loop=true;s.start();return s;
+}
+
+function mkHiss(){
+  const len=audioCtx.sampleRate*2,buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate),d=buf.getChannelData(0);
+  let lv=0;for(let i=0;i<len;i++){lv=(lv+.02*(Math.random()*2-1))/1.02;d[i]=lv*20;}
+  const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=3200;f.Q.value=.6;
+  const g=audioCtx.createGain(),s=audioCtx.createBufferSource();s.buffer=buf;s.loop=true;s.start();
+  s.connect(f);f.connect(g);return g;
+}
+
+function buildChain(){
+  srcNode=audioCtx.createBufferSource();srcNode.buffer=audioBuf;
+  srcNode.connect(gainN);gainN.connect(lpf);lpf.connect(hpf);hpf.connect(wsN);wsN.connect(masterG);
+  srcNode.onended=()=>{if(isPlaying){isPlaying=false;bplay.textContent='▶';pauseOff=0;}};
+}
+
+function play(){
+  if(!audioBuf)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  buildChain();sTime=audioCtx.currentTime-pauseOff;
+  srcNode.start(0,pauseOff);isPlaying=true;bplay.textContent='⏸';
+}
+
+function stop(){
+  if(srcNode){srcNode.onended=null;try{srcNode.stop();}catch(e){}}
+  pauseOff=audioCtx?Math.min(audioCtx.currentTime-sTime,audioBuf?audioBuf.duration:0):0;
+  isPlaying=false;bplay.textContent='▶';
+}
+
+function togglePlay(){
+  if(!audioCtx)initCtx();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  if(!audioBuf)return;
+  isPlaying?stop():play();
+}
+
+async function exportProcessedAudio(){
+  if(!audioBuf)return;
+  if(!audioCtx)initCtx();
+  const sampleRate=audioCtx.sampleRate;
+  const offline=new OfflineAudioContext(audioBuf.numberOfChannels,audioBuf.length,sampleRate);
+  const src=offline.createBufferSource(); src.buffer=audioBuf;
+  const gainNode=offline.createGain(); gainNode.gain.value=masterG?masterG.gain.value:1.1;
+  const lpfNode=offline.createBiquadFilter(); lpfNode.type='lowpass'; lpfNode.frequency.value=lpf?lpf.frequency.value:2700; lpfNode.Q.value=0.9;
+  const hpfNode=offline.createBiquadFilter(); hpfNode.type='highpass'; hpfNode.frequency.value=hpf?hpf.frequency.value:280;
+  const wsNode=offline.createWaveShaper(); wsNode.curve=dist(65);
+  const crackGainNode=offline.createGain(); crackGainNode.gain.value=crackG?crackG.gain.value:0.13;
+  const hissGainNode=offline.createGain(); hissGainNode.gain.value=hissG?hissG.gain.value:0.05;
+  const masterGainNode=offline.createGain(); masterGainNode.gain.value=1.1;
+  const crackSource=mkCrackOffline(offline); const hissSource=mkHissOffline(offline);
+  crackSource.connect(crackGainNode); hissSource.connect(hissGainNode);
+  crackGainNode.connect(masterGainNode); hissGainNode.connect(masterGainNode);
+  src.connect(gainNode); gainNode.connect(lpfNode); lpfNode.connect(hpfNode); hpfNode.connect(wsNode); wsNode.connect(masterGainNode); masterGainNode.connect(offline.destination);
+  src.start(0); crackSource.start(0); hissSource.start(0);
+  const rendered=await offline.startRendering();
+  const wav=encodeWAV(rendered);
+  const blob=new Blob([wav],{type:'audio/wav'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`${tnm.textContent.trim() || 'radio'}-processed.wav`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function mkCrackOffline(ctx){
+  const len=ctx.sampleRate*4;
+  const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<len;i++){
+    if(Math.random()<0.002){
+      const dur=Math.floor(Math.random()*70+20);
+      for(let j=0;j<dur&&i+j<len;j++)d[i+j]=(Math.random()*2-1)*Math.exp(-j/(dur*.3))*1.5;
+      i+=dur;
+    }
+  }
+  const s=ctx.createBufferSource(); s.buffer=buf; s.loop=true;
+  return s;
+}
+
+function mkHissOffline(ctx){
+  const len=ctx.sampleRate*2;
+  const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  let lv=0;
+  for(let i=0;i<len;i++){lv=(lv+.02*(Math.random()*2-1))/1.02; d[i]=lv*20;}
+  const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=3200; f.Q.value=.6;
+  const g=ctx.createGain(); const s=ctx.createBufferSource(); s.buffer=buf; s.loop=true;
+  s.connect(f); f.connect(g); return s;
+}
+
+function encodeWAV(audioBuffer){
+  const numChannels=audioBuffer.numberOfChannels;
+  const sampleRate=audioBuffer.sampleRate;
+  const bytesPerSample=2;
+  const blockAlign=numChannels*bytesPerSample;
+  const buffer=new ArrayBuffer(44+audioBuffer.length*blockAlign);
+  const view=new DataView(buffer);
+  function writeString(offset,str){for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i));}
+  writeString(0,'RIFF'); view.setUint32(4,36+audioBuffer.length*blockAlign,true);
+  writeString(8,'WAVE'); writeString(12,'fmt ');
+  view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,numChannels,true);
+  view.setUint32(24,sampleRate,true); view.setUint32(28,sampleRate*blockAlign,true);
+  view.setUint16(32,blockAlign,true); view.setUint16(34,bytesPerSample*8,true);
+  writeString(36,'data'); view.setUint32(40,audioBuffer.length*blockAlign,true);
+  const channels=[];
+  for(let c=0;c<numChannels;c++)channels.push(audioBuffer.getChannelData(c));
+  let offset=44;
+  for(let i=0;i<audioBuffer.length;i++){
+    for(let c=0;c<numChannels;c++){
+      let sample=channels[c][i]; sample=Math.max(-1,Math.min(1,sample));
+      view.setInt16(offset,sample<0?sample*0x8000:sample*0x7fff,true);
+      offset+=2;
+    }
+  }
+  return view;
+}
+
+function mkKnob(el,cb){
+  let drag=false,sy=0,sv=50,val=50;
+  el.style.transform=`rotate(${-135+val*2.7}deg)`;
+  cb(val);
+  el.addEventListener('mousedown',e=>{drag=true;sy=e.clientY;sv=val;e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(!drag)return;val=Math.max(0,Math.min(100,sv+(sy-e.clientY)*.85));el.style.transform=`rotate(${-135+val*2.7}deg)`;cb(val);});
+  document.addEventListener('mouseup',()=>drag=false);
+  el.addEventListener('touchstart',e=>{drag=true;sy=e.touches[0].clientY;sv=val;},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!drag)return;val=Math.max(0,Math.min(100,sv+(sy-e.touches[0].clientY)*.85));el.style.transform=`rotate(${-135+val*2.7}deg)`;cb(val);});
+  document.addEventListener('touchend',()=>drag=false);
+}
+
+mkKnob(document.getElementById('kvol'),v=>{volumeVal=v; if(masterG)masterG.gain.value=v/100*1.5;});
+mkKnob(document.getElementById('ktune'),v=>{tuneVal=v; if(lpf)lpf.frequency.value=1200+v*20;});
+
+let dialDrag=false,dialSY=0,dialAngle=0;
+const dial=document.getElementById('dial');
+dial.addEventListener('mousedown',e=>{dialDrag=true;dialSY=e.clientY;e.preventDefault();});
+document.addEventListener('mousemove',e=>{if(!dialDrag)return;dialAngle=Math.max(-135,Math.min(135,dialAngle+(dialSY-e.clientY)));dial.style.transform=`rotate(${dialAngle}deg)`;dialSY=e.clientY;if(lpf)lpf.frequency.value=1200+(dialAngle+135)/270*4000;});
+document.addEventListener('mouseup',()=>dialDrag=false);
+</script>
